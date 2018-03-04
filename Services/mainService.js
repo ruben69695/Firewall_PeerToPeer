@@ -23,11 +23,14 @@ server.listen(_PORT, function() {
     
     */
 
-    var result = MongoGetRules("2018-02-25T08:19:25.712Z");
-    
-    console.log(result);
+    /*
+    CallbackToMongo("2018-02-25T08:19:25.712Z", function(resultado) {
+        console.log(resultado);
+    }); */
 
 });
+
+
 
 io.sockets.on('connection', function(socket) {
 
@@ -103,41 +106,62 @@ io.sockets.on('connection', function(socket) {
             // A la descripción le concatenamos un espacio y la versión
             newRule.Description = newRule.Description + " " + newRule.Version;
             newRule.Operation = "crear";         
-            //message = MongoInsertRule(newRule);
-            Mongo(function() {
-                message = MongoInsertRule(newRule);
+            
+            CallbackMongoAddRule(newRule, function(resultado) {
+                message = IdentifyError(resultado);     // Identificamos el error      
+                notifyRuleToClients(newRule, socket);   // Notificamos al cliente y si no hay error a los clientes
             });
         }
         else if(operation == "modifyRule")
         {
             // Crear un registro de eliminación para la regla pasada por JSON y luego crearla como nueva
             newRule.Operation = "eliminar";
-            message = MongoInsertRule(newRule);
-            if(!message.Erno)
-            {
-                newRule.Operation = "create";
-                message = MongoInsertRule(newRule);
-            }
+
+            CallbackMongoAddRule(newRule, function(resultado) {
+                message = IdentifyError(resultado);     // Identificamos el error
+                if(!message.Erno)
+                {
+                    newRule.Operation = "create";       // Volvemos a crear la regla con las modificaciones
+                    CallbackMongoAddRule(newRule, function(resultado) {
+                        message = IdentifyError(resultado);     // Identificamos el error
+                        notifyRuleToClients(newRule, socket);   // Notificamos al cliente y si no hay error a los clientes
+                    });
+                }
+
+            });
         }
         else if(operation == "deleteRule")
         {
-            // Crear un registro de eliminación para la regla pasada por JSON
-            newRule.Operation = "eliminar";
-            message = MongoInsertRule(newRule);
+            newRule.Operation = "eliminar";     // Crear un registro de eliminación para la regla pasada por JSON
+
+            CallbackMongoAddRule(newRule, function(resultado) {
+                message = IdentifyError(resultado);         // Identificamos el error
+                notifyRuleToClients(newRule, socket);       // Notificamos al cliente y si no hay error a los clientes
+            });
+
         }
         else if(operation == "enableRule")
         {
             // Crar registro para habilitar la regla pasada por JSON
             newRule.Operation = "habilitar";
-            message = MongoInsertRule(newRule);
+
+            CallbackMongoAddRule(newRule, function(resultado) {
+                message = IdentifyError(resultado);     // Identificamos el error
+                notifyRuleToClients(newRule, socket);   // Notificamos al cliente y si no hay error a los clientes
+            });
         }
         else if(operation == "disableRule")
         {
             // Crear un registro para deshabilitar la regla pasada por JSON
             newRule.Operation = "deshabilitar";
-            message = MongoInsertRule(newRule);
+
+            CallbackMongoAddRule(newRule, function(resultado) {
+                message = IdentifyError(resultado);     // Identificamos el error
+                notifyRuleToClients(newRule, socket);   // Notificamos al cliente y si no hay error a los clientes
+            });
         }
 
+        /*
         // Notificamos el resultado de la operación al cliente que ha solicitado realizar el cambio
         socket.emit('okChange', message.ToJson());
 
@@ -146,6 +170,19 @@ io.sockets.on('connection', function(socket) {
         {
             io.sockets.emit('newChangeDone', newRule.ToJson());
         }
+        */
+    }
+
+    function notifyRuleToClients(rule, socket)
+    {
+        // Notificamos el resultado de la operación al cliente que ha solicitado realizar el cambio
+        socket.emit('okChange', message.ToJson());
+
+        // Si no hay error en el mensaje hacemos un broadcast a todos los clientes para que actualicen la versión
+        if(message.Erno == 0)
+        {
+            io.sockets.emit('newChangeDone', rule.ToJson());
+        }
     }
 
     /**
@@ -153,7 +190,7 @@ io.sockets.on('connection', function(socket) {
      * @param {string} operation Tipo de operacion inmutable sobre la base de datos
      * @param {string} json Información en formato json
      */
-    function flowImmutableOperations(operation, json)
+    function flowImmutableOperations(operation, json, socket)
     {
         // Objeto de mensaje
         var message;
@@ -163,26 +200,25 @@ io.sockets.on('connection', function(socket) {
         var result;
 
         if(operation == "getCurrentList")
-        {
-            result = mongoGetVersion(info.clientDate);    // Obtenemos le resultado de la consulta
+        {   
+            //result = mongoGetVersion(info.clientDate);    // Obtenemos le resultado de la consulta
+            CallbackMongoGetRules("2018-02-25T08:19:25.712Z", function(resultado) {
+                // Retornamos el resultado al cliente
+                console.log(resultado);
+                socket.emit(resultado);
+            });
         }
-
-        // Retornamos el resultado al cliente
-        socket.emit(result);
+        //socket.emit(result);
     }
 
     /**
      * 
-     * @param {RuleLog} rule Obtejo RuleLog para poder crear un nuevo registro en la base de datos
+     * @param {Int} num Numero de error
      */
-    function createRule(rule)
+    function IdentifyError(num)
     {
         var error = 0;
-        var message;
-   
-        // Guardamos la regla en la base de datos
-        rule.Operation = "Crear";
-        error = MongoInsertRule(rule);
+        var message
 
         // 0 es que no hay error, mas grande de 0 es error
         if(error == 0)
@@ -203,6 +239,21 @@ io.sockets.on('connection', function(socket) {
         return message;
     }
 
+    
+    function CallbackMongoGetRules(parametro, callback) {
+        setTimeout(function() {
+            var resultado = MongoGetRules(parametro);
+            callback(resultado);
+        }, 500);
+    }
+
+    function CallbackMongoAddRule(rule, callback) {
+        setTimeout(function() {
+            var result = MongoInsertRule(rule);
+            callback(result);
+        }, 500);
+    }
+
     function MongoGetRules(date){
         if(date!=null)
         {
@@ -217,7 +268,7 @@ io.sockets.on('connection', function(socket) {
                 console.log(result);
 
                 db.close();
-                return result
+                return JSON.stringify(result);
                 });
             });
         }
