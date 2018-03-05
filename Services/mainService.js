@@ -250,8 +250,7 @@ io.sockets.on('connection', function(socket) {
 
    function CallbackMongoGetRules(date, callback) {
         setTimeout(function() {
-            var resultado = MongoGetRules(date);
-
+            //var resultado = MongoGetRules(date);
             if(date!=null)
             {
                 MongoClient.connect(urlConnexio, function(err, db) {
@@ -280,6 +279,7 @@ io.sockets.on('connection', function(socket) {
         }, 500);
     }
 
+    /*
     function MongoGetRules(date){
         if(date!=null)
         {
@@ -299,6 +299,7 @@ io.sockets.on('connection', function(socket) {
             });
         }
     }
+    */
 
     function MongoInsertRule(obj)
     {
