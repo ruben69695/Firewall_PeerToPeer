@@ -20,7 +20,7 @@ server.listen(_PORT, function() {
 
 io.sockets.on('connection', function(socket) {
 
-    console.log("Un cliente con IP %s , ha establecido conexión con el socket", socket.conn.remoteAddress);
+    console.log(new Date().toISOString() + " - Un cliente con IP %s , ha establecido conexión con el socket", socket.conn.remoteAddress);
 
     // PETICIONES A ATENDER POR PARTE DEL CLIENTE
     socket.on('addRule', function (json) {
