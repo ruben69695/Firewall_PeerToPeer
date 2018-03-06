@@ -14,20 +14,6 @@ server.listen(_PORT, function() {
     console.log("Socket running on http://*:%s", _PORT);
     console.log("Fecha de ejecución del servidor -> " + new Date().toISOString());
 
-    /*var tempRule = new RuleLog("ASIX_SSH", "Apertura del puerto SSH", "", 22, "Crear", 
-    "in", "allow", "tcp", "Ruben Arrebola");
-
-    var numError = MongoInsertRule(tempRule); 
-    
-    console.log(numError);
-    
-    */
-
-    /*
-    CallbackToMongo("2018-02-25T08:19:25.712Z", function(resultado) {
-        console.log(resultado);
-    }); */
-
 });
 
 
@@ -97,14 +83,22 @@ io.sockets.on('connection', function(socket) {
         
         // Instanciamos una nueva regla con los datos correspondientes
         var newRule = new RuleLog (       
+<<<<<<< HEAD
             result.name, result.desc, result.path, result.port, 
+=======
+            result.name, result.description, result.path, result.port, 
+>>>>>>> refs/remotes/origin/master
             result.operation, result.inOut, result.permission, result.protocol, result.author
         );
 
         if(operation == "addRule")
         {
             // A la descripción le concatenamos un espacio y la versión
+<<<<<<< HEAD
             newRule.desc = newRule.desc + " " + newRule.version;
+=======
+            newRule.description = newRule.description + " " + newRule.version;
+>>>>>>> refs/remotes/origin/master
             newRule.operation = "crear";         
             
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -132,7 +126,7 @@ io.sockets.on('connection', function(socket) {
         }
         else if(operation == "deleteRule")
         {
-            newRule.Operation = "eliminar";     // Crear un registro de eliminación para la regla pasada por JSON
+            newRule.operation = "eliminar";     // Crear un registro de eliminación para la regla pasada por JSON
 
             CallbackMongoAddRule(newRule, function(resultado) {
                 message = IdentifyError(resultado, newRule);         // Identificamos el error
@@ -143,7 +137,7 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "enableRule")
         {
             // Crar registro para habilitar la regla pasada por JSON
-            newRule.Operation = "habilitar";
+            newRule.operation = "habilitar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
                 message = IdentifyError(resultado, newRule);     // Identificamos el error
@@ -153,24 +147,13 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "disableRule")
         {
             // Crear un registro para deshabilitar la regla pasada por JSON
-            newRule.Operation = "deshabilitar";
+            newRule.operation = "deshabilitar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
                 message = IdentifyError(resultado, newRule);     // Identificamos el error
                 notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
             });
         }
-
-        /*
-        // Notificamos el resultado de la operación al cliente que ha solicitado realizar el cambio
-        socket.emit('okChange', message.ToJson());
-
-        // Si no hay error en el mensaje hacemos un broadcast a todos los clientes para que actualicen la versión
-        if(message.Erno == 0)
-        {
-            io.sockets.emit('newChangeDone', newRule.ToJson());
-        }
-        */
     }
 
     function notifyRuleToClients(message, socket)
@@ -244,20 +227,16 @@ io.sockets.on('connection', function(socket) {
         return message;
     }
 
-    /*
-    function CallbackMongoGetRules(parametro, callback) {
-        setTimeout(function() {
-            var resultado = MongoGetRules(parametro);
-            callback(resultado);
-        }, 500);
-    }
-    */
-
    function CallbackMongoGetRules(date, callback) {
         setTimeout(function() {
+<<<<<<< HEAD
             var resultado = MongoGetRules(date);
 
             if(date!=null || date!="")
+=======
+            //var resultado = MongoGetRules(date);
+            if(date!=null)
+>>>>>>> refs/remotes/origin/master
             {
                 MongoClient.connect(urlConnexio, function(err, db) {
                     if (err) throw err;
@@ -302,6 +281,7 @@ io.sockets.on('connection', function(socket) {
         }, 500);
     }
 
+<<<<<<< HEAD
     function MongoGetRules(date){
         if(date!=null || date!="")
         {
@@ -339,6 +319,8 @@ io.sockets.on('connection', function(socket) {
         
     }
 
+=======
+>>>>>>> refs/remotes/origin/master
     function MongoInsertRule(obj)
     {
         if(obj!=null)
