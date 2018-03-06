@@ -90,6 +90,7 @@ io.sockets.on('connection', function(socket) {
         if(operation == "addRule")
         {
             // A la descripción le concatenamos un espacio y la versión
+
             newRule.desc = newRule.desc + " " + newRule.version;
 
             newRule.operation = "crear";
@@ -225,6 +226,7 @@ io.sockets.on('connection', function(socket) {
 
             if(date!=null || date!="")
 
+
             {
                 MongoClient.connect(urlConnexio, function(err, db) {
                     if (err) throw err;
@@ -310,8 +312,45 @@ io.sockets.on('connection', function(socket) {
         }, 500);
     }
 
+    function MongoGetRules(date){
+        if(date!=null || date!="")
+        {
+            MongoClient.connect(urlConnexio, function(err, db) {
+                if (err) throw err;
+                var dbo = db.db(nomdb);
+                //Find the first document in the customers collection:
+                dbo.collection("rules").find({
+                    version: {"$gt":date}
+                }).toArray(function(err, result) {
+                if (err) throw er
+                console.log("get rules mongo");
 
-    function MongoInsertRule(obj)
+                db.close();
+                return JSON.stringify(result);
+                });
+            });
+        }
+        else
+        {    
+            MongoClient.connect(urlConnexio, function(err, db) {
+                if (err) throw err;
+                var dbo = db.db(nomdb);
+                //Find the first document in the customers collection:
+                dbo.collection("rules").find({}).toArray(function(err, result) {
+                if (err) throw er
+                console.log(result);
+
+                db.close();
+                //return JSON.stringify(result);
+                callback(result);
+                });
+            });
+            } 
+        
+    }
+
+
+    /*function MongoInsertRule(obj)
     {
         if(obj!=null)
         {  
@@ -341,7 +380,7 @@ io.sockets.on('connection', function(socket) {
                                 // callback excepción error al crear 2
                                 throw err;
                             } 
-                            console.log("Insert Rule Correctament");
+                            console.log("Insert Rule: "+rule+" correctament");
                             db.close();
                             // callback todo OK 0
 
@@ -351,4 +390,4 @@ io.sockets.on('connection', function(socket) {
             });
 
         }
-    }
+    }*/
