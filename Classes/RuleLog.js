@@ -26,6 +26,7 @@ module.exports = class RuleLog {
         this.Version = new Date().toISOString()
         this.Protocol = protocol;
         this.Author = author;
+        this.Name = this.Name + " " + this.Version;
     }
     
     /** 
