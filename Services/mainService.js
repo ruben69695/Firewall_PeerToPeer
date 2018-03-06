@@ -14,20 +14,6 @@ server.listen(_PORT, function() {
     console.log("Socket running on http://*:%s", _PORT);
     console.log("Fecha de ejecución del servidor -> " + new Date().toISOString());
 
-    /*var tempRule = new RuleLog("ASIX_SSH", "Apertura del puerto SSH", "", 22, "Crear", 
-    "in", "allow", "tcp", "Ruben Arrebola");
-
-    var numError = MongoInsertRule(tempRule); 
-    
-    console.log(numError);
-    
-    */
-
-    /*
-    CallbackToMongo("2018-02-25T08:19:25.712Z", function(resultado) {
-        console.log(resultado);
-    }); */
-
 });
 
 
@@ -160,17 +146,6 @@ io.sockets.on('connection', function(socket) {
                 notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
             });
         }
-
-        /*
-        // Notificamos el resultado de la operación al cliente que ha solicitado realizar el cambio
-        socket.emit('okChange', message.ToJson());
-
-        // Si no hay error en el mensaje hacemos un broadcast a todos los clientes para que actualicen la versión
-        if(message.Erno == 0)
-        {
-            io.sockets.emit('newChangeDone', newRule.ToJson());
-        }
-        */
     }
 
     function notifyRuleToClients(message, socket)
@@ -239,19 +214,9 @@ io.sockets.on('connection', function(socket) {
         return message;
     }
 
-    /*
-    function CallbackMongoGetRules(parametro, callback) {
-        setTimeout(function() {
-            var resultado = MongoGetRules(parametro);
-            callback(resultado);
-        }, 500);
-    }
-    */
-
    function CallbackMongoGetRules(date, callback) {
         setTimeout(function() {
-            var resultado = MongoGetRules(date);
-
+            //var resultado = MongoGetRules(date);
             if(date!=null)
             {
                 MongoClient.connect(urlConnexio, function(err, db) {
@@ -278,26 +243,6 @@ io.sockets.on('connection', function(socket) {
             var result = MongoInsertRule(rule);
             callback(result);
         }, 500);
-    }
-
-    function MongoGetRules(date){
-        if(date!=null)
-        {
-            MongoClient.connect(urlConnexio, function(err, db) {
-                if (err) throw err;
-                var dbo = db.db(nomdb);
-                //Find the first document in the customers collection:
-                dbo.collection("rules").find({
-                    version: {"$gt":date}
-                }).toArray(function(err, result) {
-                if (err) throw er
-                console.log(result);
-
-                db.close();
-                return JSON.stringify(result);
-                });
-            });
-        }
     }
 
     function MongoInsertRule(obj)
