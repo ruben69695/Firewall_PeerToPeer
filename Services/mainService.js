@@ -20,7 +20,7 @@ server.listen(_PORT, function() {
 
 io.sockets.on('connection', function(socket) {
 
-    console.log("Un cliente con IP %s , ha establecido conexión con el socket", socket.conn.remoteAddress);
+    console.log(new Date().toISOString() + " - Un cliente con IP %s , ha establecido conexión con el socket", socket.conn.remoteAddress);
 
     // PETICIONES A ATENDER POR PARTE DEL CLIENTE
     socket.on('addRule', function (json) {
@@ -179,19 +179,13 @@ io.sockets.on('connection', function(socket) {
 
         if(operation == "getCurrentList")
         {   
-           /* if(info=="")
-            {
-                var datenow = new Date();
-                var info = datenow.toISOString();
-            }*/
-            //result = mongoGetVersion(info.clientDate);    // Obtenemos le resultado de la consulta
             CallbackMongoGetRules(info, function(resultado) {
                 // Retornamos el resultado al cliente
                 console.log("lista enviada con exito");
+                console.log(resultado);
                 socket.emit('list', resultado);
             });
         }
-        //socket.emit(result);
     }
 
     /**
@@ -225,8 +219,6 @@ io.sockets.on('connection', function(socket) {
    function CallbackMongoGetRules(date, callback) {
         setTimeout(function() {
 
-            var resultado = MongoGetRules(date);
-
             if(date!=null || date!="")
 
 
@@ -242,7 +234,6 @@ io.sockets.on('connection', function(socket) {
                     console.log(result);
 
                     db.close();
-                    //return JSON.stringify(result);
                     callback(result);
                     });
                 });
@@ -270,6 +261,7 @@ io.sockets.on('connection', function(socket) {
     function CallbackMongoAddRule(rule, callback) {
         setTimeout(function() {
             var result = MongoInsertRule(rule);
+            console.log(result);
             callback(result);
         }, 500);
     }
