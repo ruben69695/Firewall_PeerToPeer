@@ -178,12 +178,6 @@ io.sockets.on('connection', function(socket) {
 
         if(operation == "getCurrentList")
         {   
-           /* if(info=="")
-            {
-                var datenow = new Date();
-                var info = datenow.toISOString();
-            }*/
-            //result = mongoGetVersion(info.clientDate);    // Obtenemos le resultado de la consulta
             CallbackMongoGetRules(info, function(resultado) {
                 // Retornamos el resultado al cliente
                 console.log("lista enviada con exito");
@@ -191,7 +185,6 @@ io.sockets.on('connection', function(socket) {
                 socket.emit('list', resultado);
             });
         }
-        //socket.emit(result);
     }
 
     /**
@@ -241,7 +234,6 @@ io.sockets.on('connection', function(socket) {
                     console.log(result);
 
                     db.close();
-                    //return JSON.stringify(result);
                     callback(result);
                     });
                 });
