@@ -84,7 +84,6 @@ io.sockets.on('connection', function(socket) {
         // Instanciamos una nueva regla con los datos correspondientes
         var newRule = new RuleLog (       
             result.name, result.desc, result.path, result.port, 
-
             result.operation, result.inOut, result.permission, result.protocol, result.author
         );
 
@@ -103,6 +102,7 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "modifyRule")
         {
             // Crear un registro de eliminación para la regla pasada por JSON y luego crearla como nueva
+            newRule.name = result.name;
             newRule.operation = "eliminar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -120,6 +120,7 @@ io.sockets.on('connection', function(socket) {
         }
         else if(operation == "deleteRule")
         {
+            newRule.name = result.name;
             newRule.operation = "eliminar";     // Crear un registro de eliminación para la regla pasada por JSON
 
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -131,6 +132,7 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "enableRule")
         {
             // Crar registro para habilitar la regla pasada por JSON
+            newRule.name = result.name;
             newRule.operation = "habilitar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -141,6 +143,7 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "disableRule")
         {
             // Crear un registro para deshabilitar la regla pasada por JSON
+            newRule.name = result.name;
             newRule.operation = "deshabilitar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -181,8 +184,8 @@ io.sockets.on('connection', function(socket) {
             CallbackMongoGetRules(info, function(resultado) {
                 // Retornamos el resultado al cliente
                 console.log("lista enviada con exito");
-                console.log(resultado);
                 socket.emit('list', resultado);
+                console.log(resultado);
             });
         }
     }
@@ -258,7 +261,6 @@ io.sockets.on('connection', function(socket) {
 
     function CallbackMongoAddRule(rule, callback) {
         setTimeout(function() {
-            var result = MongoInsertRule(rule);
             console.log(result);
             callback(result);
         }, 500);
