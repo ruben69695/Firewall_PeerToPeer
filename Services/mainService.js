@@ -263,8 +263,50 @@ io.sockets.on('connection', function(socket) {
         }, 500);
     }
 
-    function CallbackMongoAddRule(rule, callback) {
+    function CallbackMongoAddRule(obj, callback) {
         setTimeout(function() {
+
+            var result = 0;
+
+            if(obj!=null)
+            {  
+                MongoClient.connect(urlConnexio, function(err, db) {
+                if (err){ 
+                    // callback excepción error al connectar 2
+                    result = 2;
+                    throw err;
+                }
+                var dbo = db.db(nomdb);
+    
+                dbo.collection("rules").findOne({
+                    name : obj.name,
+                    desc : obj.desc
+                    },function(err, result){
+                        if (err) throw er
+                        // En el caso de que 
+                        if(result!=null && obj.Operation == "crear")
+                        {
+                            // callback aqui 1
+                            result = 1;
+                        }
+                        else
+                        {
+                            var rule = { name: obj.name, desc: obj.desc, path: obj.path,port:obj.port,operation:obj.operation,inOut:obj.inOut,permission:obj.permission,version:obj.version,protocol:obj.protocol,author:obj.author}      
+                            dbo.collection("rules").insertOne(rule, function(err, res) {
+                                if (err)
+                                {
+                                    // callback excepción error al crear 2
+                                    result = 2;
+                                    throw err;
+                                } 
+                                console.log("Insert Rule Correctament");
+                                console.log(rule);
+                                db.close();
+                            });
+                        }
+                    });
+                });
+            }
             console.log(result);
             callback(result);
         }, 500);
@@ -308,13 +350,13 @@ io.sockets.on('connection', function(socket) {
     }
 
 
-    function MongoInsertRule(obj)
+    /*function MongoInsertRule(obj)
     {
         if(obj!=null)
         {  
             MongoClient.connect(urlConnexio, function(err, db) {
             if (err){ 
-                return 2;
+                // callback excepción error al connectar 2
                 throw err;
             }
             var dbo = db.db(nomdb);
@@ -324,10 +366,10 @@ io.sockets.on('connection', function(socket) {
                 desc : obj.desc
                 },function(err, result){
                     if (err) throw er
-                    //console.log("result:  "+result);
-                    if(result!=null || obj.operation == "crear")
+                    // En el caso de que 
+                    if(result!=null && obj.Operation == "crear")
                     {
-                        return 1;
+                        // callback aqui 1
                     }
                     else
                     {
@@ -335,16 +377,17 @@ io.sockets.on('connection', function(socket) {
                         dbo.collection("rules").insertOne(rule, function(err, res) {
                             if (err)
                             {
-                                return 2;
+                                // callback excepción error al crear 2
                                 throw err;
                             } 
                             console.log("Insert Rule: "+rule+" correctament");
                             db.close();
-                            return 0;
+                            // callback todo OK 0
+
                         });
                     }
                 });
             });
 
         }
-    }
+    }*/
