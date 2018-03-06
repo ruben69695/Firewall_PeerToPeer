@@ -8,7 +8,7 @@ module.exports = class RuleLog {
      * @param {string} path Ruta del archivo ejecutable
      * @param {int} port Puerto a habilitar
      * @param {string} operation Operación a realizar con la regla en bbdd, crear, eliminar, habilitar, deshabilitar
-     * @param {string} inOut Tipo de regla in=Entrada, out=Salida, inout=Entrada+Salida
+     * @param {string} inOut Tipo de regla in=entrada, out=salida, inout=entrada+salida
      * @param {string} permission Permisos de la regla allow=permitir, block=bloquear
      * @param {DateTime} dateTime Fecha universal del servidor
      * @param {string} protocol Tipo de protocolo de la regla tcp/udp
@@ -26,7 +26,7 @@ module.exports = class RuleLog {
         this.version = new Date().toISOString()
         this.protocol = protocol;
         this.author = author;
-        this.name = this.Name + " " + this.Version;
+        this.name = this.name + " " + this.version;
     }
     
     /** 
