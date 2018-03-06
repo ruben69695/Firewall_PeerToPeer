@@ -83,15 +83,15 @@ io.sockets.on('connection', function(socket) {
         
         // Instanciamos una nueva regla con los datos correspondientes
         var newRule = new RuleLog (       
-            result.Name, result.Description, result.Path, result.Port, 
-            result.Operation, result.InOut, result.Permission, result.Protocol, result.Author
+            result.name, result.description, result.path, result.port, 
+            result.operation, result.inOut, result.permission, result.protocol, result.author
         );
 
         if(operation == "addRule")
         {
             // A la descripción le concatenamos un espacio y la versión
-            newRule.Description = newRule.Description + " " + newRule.Version;
-            newRule.Operation = "crear";         
+            newRule.description = newRule.description + " " + newRule.version;
+            newRule.operation = "crear";         
             
             CallbackMongoAddRule(newRule, function(resultado) {
                 message = IdentifyError(resultado, newRule);     // Identificamos el error      
@@ -101,13 +101,13 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "modifyRule")
         {
             // Crear un registro de eliminación para la regla pasada por JSON y luego crearla como nueva
-            newRule.Operation = "eliminar";
+            newRule.operation = "eliminar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
                 message = IdentifyError(resultado);     // Identificamos el error
                 if(!message.Erno)
                 {
-                    newRule.Operation = "create";       // Volvemos a crear la regla con las modificaciones
+                    newRule.operation = "create";       // Volvemos a crear la regla con las modificaciones
                     CallbackMongoAddRule(newRule, function(resultado) {
                         message = IdentifyError(resultado, newRule);     // Identificamos el error
                         notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
@@ -118,7 +118,7 @@ io.sockets.on('connection', function(socket) {
         }
         else if(operation == "deleteRule")
         {
-            newRule.Operation = "eliminar";     // Crear un registro de eliminación para la regla pasada por JSON
+            newRule.operation = "eliminar";     // Crear un registro de eliminación para la regla pasada por JSON
 
             CallbackMongoAddRule(newRule, function(resultado) {
                 message = IdentifyError(resultado, newRule);         // Identificamos el error
@@ -129,7 +129,7 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "enableRule")
         {
             // Crar registro para habilitar la regla pasada por JSON
-            newRule.Operation = "habilitar";
+            newRule.operation = "habilitar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
                 message = IdentifyError(resultado, newRule);     // Identificamos el error
@@ -139,7 +139,7 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "disableRule")
         {
             // Crear un registro para deshabilitar la regla pasada por JSON
-            newRule.Operation = "deshabilitar";
+            newRule.operation = "deshabilitar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
                 message = IdentifyError(resultado, newRule);     // Identificamos el error
