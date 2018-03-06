@@ -1,0 +1,27 @@
+{
+  "name": "firewall_peertopeer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Services/mainService.js",
+  "dependencies": {
+    "express": "^4.16.2",
+    "mongodb": "^3.0.4",
+    "semaphore": "^1.1.0",
+    "socket.io": "^2.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node Services/mainService.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ruben69695/Firewall_PeerToPeer.git"
+  },
+  "author": "Ruben & Carlos",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/ruben69695/Firewall_PeerToPeer/issues"
+  },
+  "homepage": "https://github.com/ruben69695/Firewall_PeerToPeer#readme"
+}
