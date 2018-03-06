@@ -92,7 +92,9 @@ io.sockets.on('connection', function(socket) {
             // A la descripción le concatenamos un espacio y la versión
             newRule.desc = newRule.desc + " " + newRule.version;
 
-            newRule.operation = "crear";         
+            newRule.operation = "crear";
+            
+            console.log(newRule.ToJson());
             
             CallbackMongoAddRule(newRule, function(resultado) {
                 message = IdentifyError(resultado, newRule);     // Identificamos el error      
