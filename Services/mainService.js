@@ -308,7 +308,9 @@ io.sockets.on('connection', function(socket) {
                 });
             });
             } 
+        
     }
+
 
     function MongoInsertRule(obj)
     {
@@ -327,7 +329,7 @@ io.sockets.on('connection', function(socket) {
                 },function(err, result){
                     if (err) throw er
                     //console.log("result:  "+result);
-                    if(result==null || obj.Operation != "crear")
+                    if(result!=null || obj.operation == "crear")
                     {
                         return 1;
                     }
@@ -340,7 +342,7 @@ io.sockets.on('connection', function(socket) {
                                 return 2;
                                 throw err;
                             } 
-                            console.log("Insert Rule Correctament");
+                            console.log("Insert Rule: "+rule+" correctament");
                             db.close();
                             return 0;
                         });
