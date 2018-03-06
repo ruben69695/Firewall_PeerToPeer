@@ -187,6 +187,7 @@ io.sockets.on('connection', function(socket) {
             CallbackMongoGetRules(info, function(resultado) {
                 // Retornamos el resultado al cliente
                 console.log("lista enviada con exito");
+                console.log(resultado);
                 socket.emit('list', resultado);
             });
         }
@@ -268,6 +269,7 @@ io.sockets.on('connection', function(socket) {
     function CallbackMongoAddRule(rule, callback) {
         setTimeout(function() {
             var result = MongoInsertRule(rule);
+            console.log(result);
             callback(result);
         }, 500);
     }
