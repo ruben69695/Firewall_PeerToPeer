@@ -83,22 +83,16 @@ io.sockets.on('connection', function(socket) {
         
         // Instanciamos una nueva regla con los datos correspondientes
         var newRule = new RuleLog (       
-<<<<<<< HEAD
             result.name, result.desc, result.path, result.port, 
-=======
-            result.name, result.description, result.path, result.port, 
->>>>>>> refs/remotes/origin/master
+
             result.operation, result.inOut, result.permission, result.protocol, result.author
         );
 
         if(operation == "addRule")
         {
             // A la descripción le concatenamos un espacio y la versión
-<<<<<<< HEAD
             newRule.desc = newRule.desc + " " + newRule.version;
-=======
-            newRule.description = newRule.description + " " + newRule.version;
->>>>>>> refs/remotes/origin/master
+
             newRule.operation = "crear";         
             
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -229,14 +223,11 @@ io.sockets.on('connection', function(socket) {
 
    function CallbackMongoGetRules(date, callback) {
         setTimeout(function() {
-<<<<<<< HEAD
+
             var resultado = MongoGetRules(date);
 
             if(date!=null || date!="")
-=======
-            //var resultado = MongoGetRules(date);
-            if(date!=null)
->>>>>>> refs/remotes/origin/master
+
             {
                 MongoClient.connect(urlConnexio, function(err, db) {
                     if (err) throw err;
@@ -281,46 +272,7 @@ io.sockets.on('connection', function(socket) {
         }, 500);
     }
 
-<<<<<<< HEAD
-    function MongoGetRules(date){
-        if(date!=null || date!="")
-        {
-            MongoClient.connect(urlConnexio, function(err, db) {
-                if (err) throw err;
-                var dbo = db.db(nomdb);
-                //Find the first document in the customers collection:
-                dbo.collection("rules").find({
-                    version: {"$gt":date}
-                }).toArray(function(err, result) {
-                if (err) throw er
-                console.log(result);
 
-                db.close();
-                return JSON.stringify(result);
-                });
-            });
-        }
-        else
-        {    
-            MongoClient.connect(urlConnexio, function(err, db) {
-                if (err) throw err;
-                var dbo = db.db(nomdb);
-                //Find the first document in the customers collection:
-                dbo.collection("rules").find({}).toArray(function(err, result) {
-                if (err) throw er
-                console.log(result);
-
-                db.close();
-                //return JSON.stringify(result);
-                callback(result);
-                });
-            });
-            } 
-        
-    }
-
-=======
->>>>>>> refs/remotes/origin/master
     function MongoInsertRule(obj)
     {
         if(obj!=null)
