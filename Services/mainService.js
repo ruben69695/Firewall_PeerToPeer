@@ -218,8 +218,6 @@ io.sockets.on('connection', function(socket) {
    function CallbackMongoGetRules(date, callback) {
         setTimeout(function() {
 
-            var resultado = MongoGetRules(date);
-
             if(date!=null || date!="")
 
             {
