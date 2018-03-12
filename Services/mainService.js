@@ -8,7 +8,7 @@ var RuleLog = require("./../Classes/RuleLog");
 var MongoClient = require('mongodb').MongoClient;
 var nomdb="Firewalldb";
 var urlConnexio="mongodb://localhost:27017/";
-const _PORT = 3000;
+const _PORT = 3001;
 
 server.listen(_PORT, function() {
     console.log("Socket running on http://*:%s", _PORT);
@@ -84,7 +84,6 @@ io.sockets.on('connection', function(socket) {
         // Instanciamos una nueva regla con los datos correspondientes
         var newRule = new RuleLog (       
             result.name, result.desc, result.path, result.port, 
-
             result.operation, result.inOut, result.permission, result.protocol, result.author
         );
 
@@ -94,7 +93,9 @@ io.sockets.on('connection', function(socket) {
 
             newRule.desc = newRule.desc + " " + newRule.version;
 
-            newRule.operation = "crear";         
+            newRule.operation = "crear";
+            
+            console.log(newRule.ToJson());
             
             CallbackMongoAddRule(newRule, function(resultado) {
                 message = IdentifyError(resultado, newRule);     // Identificamos el error      
@@ -104,16 +105,24 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "modifyRule")
         {
             // Crear un registro de eliminación para la regla pasada por JSON y luego crearla como nueva
+            
+            newRule.name = result.name;
             newRule.operation = "eliminar";
 
+            // Eliminamos
             CallbackMongoAddRule(newRule, function(resultado) {
-                message = IdentifyError(resultado);     // Identificamos el error
+                message = IdentifyError(resultado, newRule);     // Identificamos el error
+                notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
                 if(!message.Erno)
                 {
-                    newRule.operation = "create";       // Volvemos a crear la regla con las modificaciones
-                    CallbackMongoAddRule(newRule, function(resultado) {
-                        message = IdentifyError(resultado, newRule);     // Identificamos el error
-                        notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
+                    var ruleCrear = newRule;
+                    ruleCrear.operation = "crear";                // Volvemos a crear la regla con las modificaciones
+                    ruleCrear.version = new Date().toISOString()  // Le asignamos una nueva versión
+
+                    // Creamos
+                    CallbackMongoAddRule(ruleCrear, function(xresult) {
+                        var messageCrear = IdentifyError(xresult, ruleCrear);     // Identificamos el error
+                        notifyRuleToClients(messageCrear, socket);   // Notificamos al cliente y si no hay error a los clientes
                     });
                 }
 
@@ -121,6 +130,7 @@ io.sockets.on('connection', function(socket) {
         }
         else if(operation == "deleteRule")
         {
+            newRule.name = result.name;
             newRule.operation = "eliminar";     // Crear un registro de eliminación para la regla pasada por JSON
 
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -132,6 +142,7 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "enableRule")
         {
             // Crar registro para habilitar la regla pasada por JSON
+            newRule.name = result.name;
             newRule.operation = "habilitar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -142,6 +153,7 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "disableRule")
         {
             // Crear un registro para deshabilitar la regla pasada por JSON
+            newRule.name = result.name;
             newRule.operation = "deshabilitar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -157,7 +169,7 @@ io.sockets.on('connection', function(socket) {
         socket.emit('okChange', message.ToJson());
 
         // Si no hay error en el mensaje hacemos un broadcast a todos los clientes para que actualicen la versión
-        if(message.Erno == 0)
+        if(!message.Erno)
         {
             io.sockets.emit('newChangeDone', message.Rule.ToJson());
         }
@@ -182,8 +194,8 @@ io.sockets.on('connection', function(socket) {
             CallbackMongoGetRules(info, function(resultado) {
                 // Retornamos el resultado al cliente
                 console.log("lista enviada con exito");
-                console.log(resultado);
                 socket.emit('list', resultado);
+                console.log(resultado);
             });
         }
     }
@@ -194,21 +206,20 @@ io.sockets.on('connection', function(socket) {
      */
     function IdentifyError(num, rule)
     {
-        var error = 0;
         var message;
 
         // 0 es que no hay error, mas grande de 0 es error
-        if(error == 0)
+        if(num == 0)
         {
             // Si ha ido bien hacemos un broadcast a todos los sockets
             message = new InfoMessage(false, "Todo correcto, se ha insertado la nueva regla en base de datos", rule);
         }
-        else if(error == 2)
+        else if(num == 2)
         {
             // Si no avisamos al cliente socket que ha ido mal y el mensaje de error
             message = new InfoMessage(true, "Error al insertar el registro en base de datos", rule);
         }
-        else if(error == 1)
+        else if(num == 1)
         {
             message = new InfoMessage(true, "Ya existe en base de datos", rule);
         }
@@ -258,9 +269,50 @@ io.sockets.on('connection', function(socket) {
         }, 500);
     }
 
-    function CallbackMongoAddRule(rule, callback) {
+    function CallbackMongoAddRule(obj, callback) {
         setTimeout(function() {
-            var result = MongoInsertRule(rule);
+
+            var result = 0;
+
+            if(obj!=null)
+            {  
+                MongoClient.connect(urlConnexio, function(err, db) {
+                if (err){ 
+                    // callback excepción error al connectar 2
+                    result = 2;
+                    throw err;
+                }
+                var dbo = db.db(nomdb);
+    
+                dbo.collection("rules").findOne({
+                    name : obj.name,
+                    desc : obj.desc
+                    },function(err, result){
+                        if (err) throw er
+                        // En el caso de que 
+                        if(result!=null && obj.Operation == "crear")
+                        {
+                            // callback aqui 1
+                            result = 1;
+                        }
+                        else
+                        {
+                            var rule = { name: obj.name, desc: obj.desc, path: obj.path,port:obj.port,operation:obj.operation,inOut:obj.inOut,permission:obj.permission,version:obj.version,protocol:obj.protocol,author:obj.author}      
+                            dbo.collection("rules").insertOne(rule, function(err, res) {
+                                if (err)
+                                {
+                                    // callback excepción error al crear 2
+                                    result = 2;
+                                    throw err;
+                                } 
+                                console.log("Insert Rule Correctament");
+                                console.log(rule);
+                                db.close();
+                            });
+                        }
+                    });
+                });
+            }
             console.log(result);
             callback(result);
         }, 500);
@@ -301,46 +353,4 @@ io.sockets.on('connection', function(socket) {
             });
             } 
         
-    }
-
-
-    function MongoInsertRule(obj)
-    {
-        if(obj!=null)
-        {  
-            MongoClient.connect(urlConnexio, function(err, db) {
-            if (err){ 
-                return 2;
-                throw err;
-            }
-            var dbo = db.db(nomdb);
-
-            dbo.collection("rules").findOne({
-                name : obj.name,
-                desc : obj.desc
-                },function(err, result){
-                    if (err) throw er
-                    //console.log("result:  "+result);
-                    if(result!=null || obj.operation == "crear")
-                    {
-                        return 1;
-                    }
-                    else
-                    {
-                        var rule = { name: obj.name, desc: obj.desc, path: obj.path,port:obj.port,operation:obj.operation,inOut:obj.inOut,permission:obj.permission,version:obj.version,protocol:obj.protocol,author:obj.author}      
-                        dbo.collection("rules").insertOne(rule, function(err, res) {
-                            if (err)
-                            {
-                                return 2;
-                                throw err;
-                            } 
-                            console.log("Insert Rule: "+rule+" correctament");
-                            db.close();
-                            return 0;
-                        });
-                    }
-                });
-            });
-
-        }
     }
