@@ -90,6 +90,7 @@ io.sockets.on('connection', function(socket) {
         if(operation == "addRule")
         {
             // A la descripción le concatenamos un espacio y la versión
+
             newRule.desc = newRule.desc + " " + newRule.version;
 
             newRule.operation = "crear";
@@ -203,7 +204,6 @@ io.sockets.on('connection', function(socket) {
         // 0 es que no hay error, mas grande de 0 es error
         if(num == 0)
         {
-            
             // Si ha ido bien hacemos un broadcast a todos los sockets
             message = new InfoMessage(false, "Todo correcto, se ha insertado la nueva regla en base de datos", rule);
         }
@@ -224,6 +224,7 @@ io.sockets.on('connection', function(socket) {
         setTimeout(function() {
 
             if(date!=null || date!="")
+
 
             {
                 MongoClient.connect(urlConnexio, function(err, db) {
@@ -310,45 +311,39 @@ io.sockets.on('connection', function(socket) {
         }, 500);
     }
 
-    /*
-    function MongoInsertRule(obj)
-    {
-        if(obj!=null)
-        {  
+    function MongoGetRules(date){
+        if(date!=null || date!="")
+        {
             MongoClient.connect(urlConnexio, function(err, db) {
-            if (err){ 
-                // callback excepción error al connectar 2
-                throw err;
-            }
-            var dbo = db.db(nomdb);
+                if (err) throw err;
+                var dbo = db.db(nomdb);
+                //Find the first document in the customers collection:
+                dbo.collection("rules").find({
+                    version: {"$gt":date}
+                }).toArray(function(err, result) {
+                if (err) throw er
+                console.log("get rules mongo");
 
-            dbo.collection("rules").findOne({
-                name : obj.name,
-                desc : obj.desc
-                },function(err, result){
-                    if (err) throw er
-                    // En el caso de que 
-                    if(result!=null && obj.Operation == "crear")
-                    {
-                        // callback aqui 1
-                    }
-                    else
-                    {
-                        var rule = { name: obj.name, desc: obj.desc, path: obj.path,port:obj.port,operation:obj.operation,inOut:obj.inOut,permission:obj.permission,version:obj.version,protocol:obj.protocol,author:obj.author}      
-                        dbo.collection("rules").insertOne(rule, function(err, res) {
-                            if (err)
-                            {
-                                // callback excepción error al crear 2
-                                throw err;
-                            } 
-                            console.log("Insert Rule Correctament");
-                            db.close();
-                            // callback todo OK 0
-
-                        });
-                    }
+                db.close();
+                return JSON.stringify(result);
                 });
             });
-
         }
-    }*/
+        else
+        {    
+            MongoClient.connect(urlConnexio, function(err, db) {
+                if (err) throw err;
+                var dbo = db.db(nomdb);
+                //Find the first document in the customers collection:
+                dbo.collection("rules").find({}).toArray(function(err, result) {
+                if (err) throw er
+                console.log(result);
+
+                db.close();
+                //return JSON.stringify(result);
+                callback(result);
+                });
+            });
+            } 
+        
+    }
