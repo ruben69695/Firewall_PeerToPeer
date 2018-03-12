@@ -199,21 +199,20 @@ io.sockets.on('connection', function(socket) {
      */
     function IdentifyError(num, rule)
     {
-        var error = 0;
         var message;
 
         // 0 es que no hay error, mas grande de 0 es error
-        if(error == 0)
+        if(num == 0)
         {
             // Si ha ido bien hacemos un broadcast a todos los sockets
             message = new InfoMessage(false, "Todo correcto, se ha insertado la nueva regla en base de datos", rule);
         }
-        else if(error == 2)
+        else if(num == 2)
         {
             // Si no avisamos al cliente socket que ha ido mal y el mensaje de error
             message = new InfoMessage(true, "Error al insertar el registro en base de datos", rule);
         }
-        else if(error == 1)
+        else if(num == 1)
         {
             message = new InfoMessage(true, "Ya existe en base de datos", rule);
         }
@@ -348,46 +347,3 @@ io.sockets.on('connection', function(socket) {
             } 
         
     }
-
-
-    /*function MongoInsertRule(obj)
-    {
-        if(obj!=null)
-        {  
-            MongoClient.connect(urlConnexio, function(err, db) {
-            if (err){ 
-                // callback excepción error al connectar 2
-                throw err;
-            }
-            var dbo = db.db(nomdb);
-
-            dbo.collection("rules").findOne({
-                name : obj.name,
-                desc : obj.desc
-                },function(err, result){
-                    if (err) throw er
-                    // En el caso de que 
-                    if(result!=null && obj.Operation == "crear")
-                    {
-                        // callback aqui 1
-                    }
-                    else
-                    {
-                        var rule = { name: obj.name, desc: obj.desc, path: obj.path,port:obj.port,operation:obj.operation,inOut:obj.inOut,permission:obj.permission,version:obj.version,protocol:obj.protocol,author:obj.author}      
-                        dbo.collection("rules").insertOne(rule, function(err, res) {
-                            if (err)
-                            {
-                                // callback excepción error al crear 2
-                                throw err;
-                            } 
-                            console.log("Insert Rule: "+rule+" correctament");
-                            db.close();
-                            // callback todo OK 0
-
-                        });
-                    }
-                });
-            });
-
-        }
-    }*/
