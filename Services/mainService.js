@@ -8,7 +8,7 @@ var RuleLog = require("./../Classes/RuleLog");
 var MongoClient = require('mongodb').MongoClient;
 var nomdb="Firewalldb";
 var urlConnexio="mongodb://localhost:27017/";
-const _PORT = 3000;
+const _PORT = 3001;
 
 server.listen(_PORT, function() {
     console.log("Socket running on http://*:%s", _PORT);
@@ -112,7 +112,7 @@ io.sockets.on('connection', function(socket) {
                 message = IdentifyError(resultado);     // Identificamos el error
                 if(!message.Erno)
                 {
-                    newRule.operation = "create";       // Volvemos a crear la regla con las modificaciones
+                    newRule.operation = "crear";       // Volvemos a crear la regla con las modificaciones
                     CallbackMongoAddRule(newRule, function(resultado) {
                         message = IdentifyError(resultado, newRule);     // Identificamos el error
                         notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
