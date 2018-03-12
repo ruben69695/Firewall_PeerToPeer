@@ -118,8 +118,8 @@ io.sockets.on('connection', function(socket) {
                     newRule.version = new Date().toISOString()  // Le asignamos una nueva versión
 
                     // Creamos
-                    CallbackMongoAddRule(newRule, function(resultado) {
-                        message = IdentifyError(resultado, newRule);     // Identificamos el error
+                    CallbackMongoAddRule(newRule, function(xresult) {
+                        message = IdentifyError(xresult, newRule);     // Identificamos el error
                         notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
                     });
                 }
@@ -167,7 +167,7 @@ io.sockets.on('connection', function(socket) {
         socket.emit('okChange', message.ToJson());
 
         // Si no hay error en el mensaje hacemos un broadcast a todos los clientes para que actualicen la versión
-        if(message.Erno == 0)
+        if(!message.Erno)
         {
             io.sockets.emit('newChangeDone', message.Rule.ToJson());
         }
