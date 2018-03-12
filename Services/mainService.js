@@ -114,13 +114,14 @@ io.sockets.on('connection', function(socket) {
                 notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
                 if(!message.Erno)
                 {
-                    newRule.operation = "crear";                // Volvemos a crear la regla con las modificaciones
-                    newRule.version = new Date().toISOString()  // Le asignamos una nueva versión
+                    var ruleCrear = newRule;
+                    ruleCrear.operation = "crear";                // Volvemos a crear la regla con las modificaciones
+                    ruleCrear.version = new Date().toISOString()  // Le asignamos una nueva versión
 
                     // Creamos
-                    CallbackMongoAddRule(newRule, function(xresult) {
-                        message = IdentifyError(xresult, newRule);     // Identificamos el error
-                        notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
+                    CallbackMongoAddRule(ruleCrear, function(xresult) {
+                        var messageCrear = IdentifyError(xresult, ruleCrear);     // Identificamos el error
+                        notifyRuleToClients(messageCrear, socket);   // Notificamos al cliente y si no hay error a los clientes
                     });
                 }
 
