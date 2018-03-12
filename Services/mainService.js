@@ -354,3 +354,43 @@ io.sockets.on('connection', function(socket) {
             } 
         
     }
+    function CallbackMongoGetRulesByName(name, callback) {
+        setTimeout(function() {
+
+            if(name!=null || name!="")
+
+
+            {
+                MongoClient.connect(urlConnexio, function(err, db) {
+                    if (err) throw err;
+                    var dbo = db.db(nomdb);
+                    
+                    dbo.collection("rules").find({
+                        name : name
+                    }).sort({version:-1}).toArray(function(err, result) {
+                    if (err) throw er
+                    console.log(result);
+
+                    db.close();
+                    callback(result);
+                    });
+                });
+            }
+            else
+            {    
+                MongoClient.connect(urlConnexio, function(err, db) {
+                    if (err) throw err;
+                    var dbo = db.db(nomdb);
+                    //Find the first document in the customers collection:
+                    dbo.collection("rules").find({}).toArray(function(err, result) {
+                    if (err) throw er
+                    console.log(result);
+    
+                    db.close();
+                    callback(result);
+                    });
+                });
+                }
+     
+        }, 500);
+    }     
