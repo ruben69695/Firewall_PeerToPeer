@@ -198,21 +198,20 @@ io.sockets.on('connection', function(socket) {
      */
     function IdentifyError(num, rule)
     {
-        var error = 0;
         var message;
 
         // 0 es que no hay error, mas grande de 0 es error
-        if(error == 0)
+        if(num == 0)
         {
             // Si ha ido bien hacemos un broadcast a todos los sockets
             message = new InfoMessage(false, "Todo correcto, se ha insertado la nueva regla en base de datos", rule);
         }
-        else if(error == 2)
+        else if(num == 2)
         {
             // Si no avisamos al cliente socket que ha ido mal y el mensaje de error
             message = new InfoMessage(true, "Error al insertar el registro en base de datos", rule);
         }
-        else if(error == 1)
+        else if(num == 1)
         {
             message = new InfoMessage(true, "Ya existe en base de datos", rule);
         }
@@ -310,7 +309,7 @@ io.sockets.on('connection', function(socket) {
         }, 500);
     }
 
-
+    /*
     function MongoInsertRule(obj)
     {
         if(obj!=null)
@@ -351,4 +350,4 @@ io.sockets.on('connection', function(socket) {
             });
 
         }
-    }
+    }*/
