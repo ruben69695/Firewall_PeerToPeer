@@ -110,7 +110,7 @@ io.sockets.on('connection', function(socket) {
 
             // Eliminamos
             CallbackMongoAddRule(newRule, function(resultado) {
-                message = IdentifyError(resultado);     // Identificamos el error
+                message = IdentifyError(resultado, newRule);     // Identificamos el error
                 notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
                 if(!message.Erno)
                 {
