@@ -203,6 +203,7 @@ io.sockets.on('connection', function(socket) {
         // 0 es que no hay error, mas grande de 0 es error
         if(num == 0)
         {
+            
             // Si ha ido bien hacemos un broadcast a todos los sockets
             message = new InfoMessage(false, "Todo correcto, se ha insertado la nueva regla en base de datos", rule);
         }
