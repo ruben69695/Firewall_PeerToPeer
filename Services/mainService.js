@@ -105,6 +105,7 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "modifyRule")
         {
             // Crear un registro de eliminación para la regla pasada por JSON y luego crearla como nueva
+            
             newRule.name = result.name;
             newRule.operation = "eliminar";
 
