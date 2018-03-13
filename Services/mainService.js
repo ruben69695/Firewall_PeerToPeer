@@ -13,7 +13,6 @@ const _PORT = 3001;
 server.listen(_PORT, function() {
     console.log("Socket running on http://*:%s", _PORT);
     console.log("Fecha de ejecución del servidor -> " + new Date().toISOString());
-
 });
 
 
@@ -90,8 +89,9 @@ io.sockets.on('connection', function(socket) {
         if(operation == "addRule")
         {
             // A la descripción le concatenamos un espacio y la versión
-
+            newRule.name = "ASIX_" + newRule.name;
             newRule.desc = newRule.desc + " " + newRule.version;
+            newRule.name = newRule.name + " " + newRule.version;
 
             newRule.operation = "crear";
             
@@ -105,8 +105,8 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "modifyRule")
         {
             // Crear un registro de eliminación para la regla pasada por JSON y luego crearla como nueva
-            CallbackMongoGetRulesByName(newRule.name, function(jsonMongo) {
-                var xruleMongo = JSON.parse(jsonMongo);
+            CallbackMongoGetRulesByName(result.name, function(jsonMongo) {
+                var xruleMongo = jsonMongo[0];
                 var ruleEliminar = new RuleLog (       
                     xruleMongo.name, xruleMongo.desc, xruleMongo.path, xruleMongo.port, 
                     "eliminar", xruleMongo.inOut, xruleMongo.permission, xruleMongo.protocol, xruleMongo.author );
@@ -127,33 +127,9 @@ io.sockets.on('connection', function(socket) {
                     }
                 });
             });
-
-            /*
-            newRule.name = result.name;
-            newRule.operation = "eliminar";
-
-            // Eliminamos
-            CallbackMongoAddRule(newRule, function(resultado) {
-                message = IdentifyError(resultado, newRule);     // Identificamos el error
-                notifyRuleToClients(message, socket);   // Notificamos al cliente y si no hay error a los clientes
-                if(!message.Erno)
-                {
-                    var ruleCrear = newRule;
-                    ruleCrear.operation = "crear";                // Volvemos a crear la regla con las modificaciones
-                    ruleCrear.version = new Date().toISOString()  // Le asignamos una nueva versión
-
-                    // Creamos
-                    CallbackMongoAddRule(ruleCrear, function(xresult) {
-                        var messageCrear = IdentifyError(xresult, ruleCrear);     // Identificamos el error
-                        notifyRuleToClients(messageCrear, socket);   // Notificamos al cliente y si no hay error a los clientes
-                    });
-                }
-
-            }); */
         }
         else if(operation == "deleteRule")
         {
-            newRule.name = result.name;
             newRule.operation = "eliminar";     // Crear un registro de eliminación para la regla pasada por JSON
 
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -165,7 +141,6 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "enableRule")
         {
             // Crar registro para habilitar la regla pasada por JSON
-            newRule.name = result.name;
             newRule.operation = "habilitar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -176,7 +151,6 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "disableRule")
         {
             // Crear un registro para deshabilitar la regla pasada por JSON
-            newRule.name = result.name;
             newRule.operation = "deshabilitar";
 
             CallbackMongoAddRule(newRule, function(resultado) {
@@ -382,8 +356,6 @@ io.sockets.on('connection', function(socket) {
         setTimeout(function() {
 
             if(name!=null || name!="")
-
-
             {
                 MongoClient.connect(urlConnexio, function(err, db) {
                     if (err) throw err;

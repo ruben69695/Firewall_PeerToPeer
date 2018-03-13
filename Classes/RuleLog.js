@@ -16,7 +16,7 @@ module.exports = class RuleLog {
      */
     constructor(name, desc, path, port, operation, inOut, permission, protocol, author) {
         
-        this.name = "ASIX_"+ name;
+        this.name = name;
         this.desc = desc;
         this.path = path;
         this.port = port;
@@ -26,7 +26,6 @@ module.exports = class RuleLog {
         this.version = new Date().toISOString()
         this.protocol = protocol;
         this.author = author;
-        this.name = this.name + " " + this.version;
     }
     
     /** 
