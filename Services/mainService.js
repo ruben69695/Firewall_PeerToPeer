@@ -105,7 +105,30 @@ io.sockets.on('connection', function(socket) {
         else if(operation == "modifyRule")
         {
             // Crear un registro de eliminación para la regla pasada por JSON y luego crearla como nueva
-            
+            CallbackMongoGetRulesByName(newRule.name, function(jsonMongo) {
+                var xruleMongo = JSON.parse(jsonMongo);
+                var ruleEliminar = new RuleLog (       
+                    xruleMongo.name, xruleMongo.desc, xruleMongo.path, xruleMongo.port, 
+                    "eliminar", xruleMongo.inOut, xruleMongo.permission, xruleMongo.protocol, xruleMongo.author );
+                CallbackMongoAddRule(ruleEliminar, function(deleteResult) {
+                    message = IdentifyError(deleteResult, ruleEliminar);
+                    notifyRuleToClients(message, socket);
+                    if(!message.Erno)
+                    {
+                        var ruleCrear = newRule;
+                        ruleCrear.operation = "crear";                // Volvemos a crear la regla con las modificaciones
+                        ruleCrear.version = new Date().toISOString()  // Le asignamos una nueva versión
+
+                        // Creamos
+                        CallbackMongoAddRule(ruleCrear, function(xresult) {
+                            var messageCrear = IdentifyError(xresult, ruleCrear);     // Identificamos el error
+                            notifyRuleToClients(messageCrear, socket);   // Notificamos al cliente y si no hay error a los clientes
+                        });
+                    }
+                });
+            });
+
+            /*
             newRule.name = result.name;
             newRule.operation = "eliminar";
 
@@ -126,7 +149,7 @@ io.sockets.on('connection', function(socket) {
                     });
                 }
 
-            });
+            }); */
         }
         else if(operation == "deleteRule")
         {
@@ -354,6 +377,7 @@ io.sockets.on('connection', function(socket) {
             } 
         
     }
+
     function CallbackMongoGetRulesByName(name, callback) {
         setTimeout(function() {
 
