@@ -1,4 +1,4 @@
-# Firewall Peer To Peer
+# Firewall Sync
 Firewall peer to peer, this service made with Node.js allows to save Windows firewall rules in a NoSQL Mongo Database and syncronize all the rules with the clients connected by socket to our service. 
 We use sockets with socket.io a famous socket library for Javascript.
 
